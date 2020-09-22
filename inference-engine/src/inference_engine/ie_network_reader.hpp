@@ -28,7 +28,7 @@ CNNNetwork ReadNetwork(const std::string& modelPath, const std::string& binPath,
  * @param exts vector with extensions
  * @return CNNNetwork
  */
-CNNNetwork ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts);
+CNNNetwork ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts, const std::string& model_path = "");
 
 }  // namespace details
 }  // namespace InferenceEngine

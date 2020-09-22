@@ -70,16 +70,16 @@ class Reader: public IReader {
 public:
     using Ptr = std::shared_ptr<Reader>;
     Reader(const std::string& name, const std::string location): name(name), location(location) {}
-    bool supportModel(std::istream& model) const override {
+    bool supportModel(details::NetworkStream& model) const override {
         OV_ITT_SCOPED_TASK(itt::domains::IE, "Reader::supportModel");
         auto reader = getReaderPtr();
         return reader->supportModel(model);
     }
-    CNNNetwork read(std::istream& model, const std::vector<IExtensionPtr>& exts) const override {
+    CNNNetwork read(details::NetworkStream& model, const std::vector<IExtensionPtr>& exts) const override {
         auto reader = getReaderPtr();
         return reader->read(model, exts);
     }
-    CNNNetwork read(std::istream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const override {
+    CNNNetwork read(details::NetworkStream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const override {
         auto reader = getReaderPtr();
         return reader->read(model, weights, exts);
     }
@@ -172,13 +172,13 @@ CNNNetwork details::ReadNetwork(const std::string& modelPath, const std::string&
         THROW_IE_EXCEPTION << "Model file " << modelPath << " cannot be opened!";
 
     assertIfIRv7LikeModel(modelStream);
-
+    NetworkStream networkStream(modelStream, modelPath);
     // Find reader for model extension
     auto fileExt = modelPath.substr(modelPath.find_last_of(".") + 1);
     for (auto it = readers.lower_bound(fileExt); it != readers.upper_bound(fileExt); it++) {
         auto reader = it->second;
         // Check that reader supports the model
-        if (reader->supportModel(modelStream)) {
+        if (reader->supportModel(networkStream)) {
             // Find weights
             std::string bPath = binPath;
             if (bPath.empty()) {
@@ -207,19 +207,19 @@ CNNNetwork details::ReadNetwork(const std::string& modelPath, const std::string&
                     THROW_IE_EXCEPTION << "Weights file " << bPath << " cannot be opened!";
 
                 // read model with weights
-                auto network = reader->read(modelStream, binStream, exts);
+                auto network = reader->read(networkStream, binStream, exts);
                 modelStream.close();
                 return network;
             }
             // read model without weights
-            return reader->read(modelStream, exts);
+            return reader->read(networkStream, exts);
         }
     }
     THROW_IE_EXCEPTION << "Unknown model format! Cannot find reader for model format: " << fileExt << " and read the model: " << modelPath <<
         ". Please check that reader library exists in your PATH.";
 }
 
-CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts) {
+CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts, const std::string& model_path) {
     OV_ITT_SCOPED_TASK(itt::domains::IE, "details::ReadNetwork");
     // Register readers if it is needed
     registerReaders();
@@ -228,12 +228,13 @@ CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weig
 
     assertIfIRv7LikeModel(modelStream);
 
+    NetworkStream networkStream(modelStream, model_path);
     for (auto it = readers.begin(); it != readers.end(); it++) {
         auto reader = it->second;
-        if (reader->supportModel(modelStream)) {
+        if (reader->supportModel(networkStream)) {
             if (weights)
-                return reader->read(modelStream, binStream, exts);
-            return reader->read(modelStream, exts);
+                return reader->read(networkStream, binStream, exts);
+            return reader->read(networkStream, exts);
         }
     }
     THROW_IE_EXCEPTION << "Unknown model format! Cannot find reader for the model and read it. Please check that reader library exists in your PATH.";

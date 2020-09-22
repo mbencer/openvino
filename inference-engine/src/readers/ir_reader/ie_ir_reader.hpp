@@ -10,6 +10,7 @@
 #include <ie_iextension.h>
 
 #include <ie_icnn_network.hpp>
+#include <ie_network_stream.hpp>
 #include <ie_reader.hpp>
 #include <map>
 #include <memory>
@@ -40,7 +41,7 @@ public:
      * @param model stream with model
      * @return true if format is supported
      */
-    bool supportModel(std::istream& model) const override;
+    bool supportModel(details::NetworkStream& model) const override;
     /**
      * @brief Reads the model to CNNNetwork
      * @param model stream with model
@@ -48,7 +49,7 @@ public:
      *
      * @return CNNNetwork
      */
-    CNNNetwork read(std::istream& model, const std::vector<IExtensionPtr>& exts) const override;
+    CNNNetwork read(details::NetworkStream& model, const std::vector<IExtensionPtr>& exts) const override;
     /**
      * @brief Reads the model to CNNNetwork
      * @param model stream with model
@@ -57,7 +58,7 @@ public:
      *
      * @return CNNNetwork
      */
-    CNNNetwork read(std::istream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const override;
+    CNNNetwork read(details::NetworkStream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const override;
 
     std::vector<std::string> getDataFileExtensions() const override {
         return {"bin"};

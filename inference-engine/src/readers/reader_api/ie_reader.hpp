@@ -12,6 +12,8 @@
 #include <vector>
 #include <ie_api.h>
 
+#include "ie_network_stream.hpp"
+
 namespace InferenceEngine {
 
 /**
@@ -24,7 +26,7 @@ public:
      * @param model stream with model
      * @return true if format is supported
      */
-    virtual bool supportModel(std::istream& model) const = 0;
+    virtual bool supportModel(details::NetworkStream& model) const = 0;
     /**
      * @brief Reads the model to CNNNetwork
      * @param model stream with model
@@ -32,7 +34,7 @@ public:
      *
      * @return CNNNetwork
      */
-    virtual CNNNetwork read(std::istream& model, const std::vector<IExtensionPtr>& exts) const = 0;
+    virtual CNNNetwork read(details::NetworkStream& model, const std::vector<IExtensionPtr>& exts) const = 0;
     /**
      * @brief Reads the model to CNNNetwork
      * @param model stream with model
@@ -41,7 +43,7 @@ public:
      *
      * @return CNNNetwork
      */
-    virtual CNNNetwork read(std::istream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const = 0;
+    virtual CNNNetwork read(details::NetworkStream& model, std::istream& weights, const std::vector<IExtensionPtr>& exts) const = 0;
 
     /**
      * @brief Returns all supported extensions for data files

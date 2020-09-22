@@ -8,7 +8,7 @@
 
 using namespace InferenceEngine;
 
-bool ONNXReader::supportModel(std::istream& model) const {
+bool ONNXReader::supportModel(details::NetworkStream& model) const {
     model.seekg(0, model.beg);
     const int header_size = 128;
     std::string header(header_size, ' ');
@@ -21,8 +21,8 @@ bool ONNXReader::supportModel(std::istream& model) const {
     return !((header.find("<net ") != std::string::npos) || (header.find("<Net ") != std::string::npos));
 }
 
-CNNNetwork ONNXReader::read(std::istream& model, const std::vector<IExtensionPtr>& exts) const {
-    return CNNNetwork(ngraph::onnx_import::import_onnx_model(model));
+CNNNetwork ONNXReader::read(details::NetworkStream& model, const std::vector<IExtensionPtr>& exts) const {
+    return CNNNetwork(ngraph::onnx_import::import_onnx_model(model, model.getNetworkPath()));
 }
 
 INFERENCE_PLUGIN_API(StatusCode) InferenceEngine::CreateReader(IReader*& reader, ResponseDesc *resp) noexcept {
