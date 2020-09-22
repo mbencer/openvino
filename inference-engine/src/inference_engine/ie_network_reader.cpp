@@ -219,7 +219,7 @@ CNNNetwork details::ReadNetwork(const std::string& modelPath, const std::string&
         ". Please check that reader library exists in your PATH.";
 }
 
-CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts, const std::string& model_path) {
+CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weights, const std::vector<IExtensionPtr>& exts) {
     OV_ITT_SCOPED_TASK(itt::domains::IE, "details::ReadNetwork");
     // Register readers if it is needed
     registerReaders();
@@ -228,7 +228,7 @@ CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weig
 
     assertIfIRv7LikeModel(modelStream);
 
-    NetworkStream networkStream(modelStream, model_path);
+    NetworkStream networkStream(modelStream);
     for (auto it = readers.begin(); it != readers.end(); it++) {
         auto reader = it->second;
         if (reader->supportModel(networkStream)) {
