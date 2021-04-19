@@ -143,14 +143,14 @@ InputEdge onnx_editor::EdgeMapper::find_input_edge(const EditorNode& node,
                            " and input index: " + std::to_string(in.m_input_index) +
                            " are ambiguous to determine input edge");
     }
-    if (!in.m_input_name.empty())
+    /*if (!in.m_input_name.empty())
     {
         return InputEdge{node_index, in.m_input_name};
-    }
-    else if (in.m_input_index != -1) // input index is set
+    }*/ // TODO: CHECK
+    if (in.m_input_index != -1) // input index is set
     {
-        const auto& input_name = get_node_input_name(node_index, in.m_input_index);
-        return InputEdge{node_index, input_name};
+        // const auto& input_name = get_node_input_name(node_index, in.m_input_index);
+        return InputEdge{node_index, in.m_input_index};
     }
     else
     {
@@ -202,15 +202,15 @@ OutputEdge onnx_editor::EdgeMapper::find_output_edge(const EditorNode& node,
         throw ngraph_error("Given node name: " + node.m_node_name +
                            " and output index: " + std::to_string(out.m_output_index) +
                            " are ambiguous to determine output edge");
-    }
-    if (!out.m_output_name.empty())
+    }                             /* TODO
+                                 if (!out.m_output_name.empty())
+                                 {
+                                     return OutputEdge{node_index, out.m_output_name};
+                                 }*/
+    if (out.m_output_index != -1) // output index is set
     {
-        return OutputEdge{node_index, out.m_output_name};
-    }
-    else if (out.m_output_index != -1) // output index is set
-    {
-        const auto& output_name = get_node_output_name(node_index, out.m_output_index);
-        return OutputEdge{node_index, output_name};
+        // const auto& output_name = get_node_output_name(node_index, out.m_output_index);
+        return OutputEdge{node_index, out.m_output_index};
     }
     else
     {
@@ -231,8 +231,14 @@ std::vector<InputEdge>
     std::transform(matched_nodes_range.first,
                    matched_nodes_range.second,
                    std::back_inserter(input_edges),
-                   [&output_name](const std::pair<std::string, int>& iter) {
-                       return InputEdge{iter.second, output_name};
+                   [&output_name, this](const std::pair<std::string, int>& iter) {
+                       const auto node_idx = iter.second;
+                       const auto output_it = std::find(std::begin(this->m_node_outputs[node_idx]),
+                                                        std::end(this->m_node_outputs[node_idx]),
+                                                        output_name);
+                       const int port_index =
+                           std::distance(std::begin(this->m_node_outputs[node_idx]), output_it);
+                       return InputEdge{node_idx, port_index};
                    });
     return input_edges;
 }

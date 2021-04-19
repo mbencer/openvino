@@ -19,14 +19,14 @@ namespace ngraph
     struct Edge
     {
         Edge() = delete;
-        Edge(const int node_idx, std::string tensor_name)
+        Edge(const int node_idx, const int port_idx)
             : m_node_idx{node_idx}
-            , m_tensor_name{std::move(tensor_name)}
+            , m_port_idx{port_idx}
         {
         }
 
         const int m_node_idx;
-        const std::string m_tensor_name;
+        const int m_port_idx;
     };
     namespace onnx_editor
     {
