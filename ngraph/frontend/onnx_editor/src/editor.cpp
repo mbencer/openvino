@@ -5,6 +5,7 @@
 #include <fstream>
 #include <onnx/onnx_pb.h>
 #include <onnx/shape_inference/implementation.h>
+#include <onnx/defs/schema.h>
 
 #include "detail/subgraph_extraction.hpp"
 #include "ngraph/log.hpp"
@@ -222,6 +223,20 @@ onnx_editor::ONNXModelEditor::ONNXModelEditor(const std::string& model_path)
 {
 }
 
+void onnx_editor::ONNXModelEditor::get_ports(int node_index)
+{
+    const auto* schema_registry = ONNX_NAMESPACE::OpSchemaRegistry::Instance();
+    const auto graph_proto = m_pimpl->m_model_proto.graph();
+    const auto node = graph_proto.node(node_index);
+    const auto opset_version = m_pimpl->m_model_proto.opset_import(0).version(); // should be checked
+    const auto node_op_schema = schema_registry->GetSchema(node.op_type(), opset_version, node.domain());
+    const auto inputs = node_op_schema->inputs();
+    for(int i=0;i<inputs.size();++i)
+    {
+        std::cout << "port_number: " << i << ", port_name: " << inputs.at(i).GetName() << std::endl;
+    }
+}
+
 const std::string& onnx_editor::ONNXModelEditor::model_path() const
 {
     return m_model_path;
@@ -294,6 +309,8 @@ void onnx_editor::ONNXModelEditor::cut_graph_fragment(const std::vector<InputEdg
     {
         return;
     }
+
+    get_ports(inputs[0].m_node_idx);
 
     m_pimpl->infer_shapes();
 

@@ -138,7 +138,7 @@ namespace
     /// \return A new input edge (along with "true") if a new input was added to the graph,
     ///         false + the original edge otherwise.
     std::pair<bool, InputEdge> append_new_graph_input(ONNX_NAMESPACE::GraphProto& graph,
-                                                      const InputEdge& edge)
+                                                      const InputEdge& edge) // node_index, port_number
     {
         if (already_exists(graph.input(), edge.m_tensor_name) &&
             !is_graph_initializer(graph, edge.m_tensor_name))
@@ -150,8 +150,8 @@ namespace
         auto& target_node = *(graph.mutable_node(edge.m_node_idx));
         auto& node_inputs = *(target_node.mutable_input());
         auto target_input =
-            std::find(std::begin(node_inputs), std::end(node_inputs), edge.m_tensor_name);
-
+            std::find(std::begin(node_inputs), std::end(node_inputs), edge.m_tensor_name); // TODO: HERE SHOULD BE USED 
+            //  target_node.mutable_input(edge.port_number);
         NGRAPH_CHECK(target_input != std::end(node_inputs),
                      "Input '",
                      edge.m_tensor_name,

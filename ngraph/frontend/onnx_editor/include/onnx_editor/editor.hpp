@@ -170,6 +170,7 @@ namespace ngraph
 
         private:
             void update_mapper_if_needed() const;
+            void get_ports(int node_index);
 
             const std::string m_model_path;
 
