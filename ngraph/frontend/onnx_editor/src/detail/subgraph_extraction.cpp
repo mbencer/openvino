@@ -7,7 +7,7 @@
 #include <stack>
 
 #include "ngraph/check.hpp"
-#include "onnx_editor/detail/subgraph_extraction.hpp"
+#include "subgraph_extraction.hpp"
 
 using namespace ngraph::onnx_editor;
 
@@ -190,7 +190,7 @@ namespace
             *(new_input.mutable_name()) = new_input_name;
             // attach the new graph input to the target node's input
             *target_input = new_input_name;
-            return {true, tensor_name};
+            return {true, new_input_name};
         }
     }
 
@@ -315,7 +315,7 @@ namespace
 
 SubgraphExtractor::SubgraphExtractor(ONNX_NAMESPACE::GraphProto& graph)
     : m_onnx_graph(graph)
-    , m_node_inputs(graph.node().size())
+    , m_node_inputs(graph.node_size())
 {
     // gathers information about the graph - input edges of every node and number of "consumers"
     // of all tensors in the graph
@@ -381,8 +381,9 @@ void SubgraphExtractor::replace_input_edge(const InputEdge& old_edge,
                                            const std::string& new_edge_name)
 {
     // remove the old edge from the helper map and insert a new edge
-    const auto pos_to_replace_it =
-        std::begin(m_node_inputs.at(old_edge.m_node_idx)) + old_edge.m_port_idx;
+    const auto pos_to_replace_it = m_node_inputs.at(old_edge.m_node_idx).begin() + old_edge.m_port_idx;
+    std::cout << "removed input: " << *pos_to_replace_it << "\n";
+    std::cout << "new_input: " << new_edge_name << "\n";
     m_node_inputs.at(old_edge.m_node_idx).erase(pos_to_replace_it);
     m_node_inputs.at(old_edge.m_node_idx).insert(pos_to_replace_it, new_edge_name);
 }
@@ -483,12 +484,13 @@ std::vector<OutputEdge> SubgraphExtractor::all_output_edges() const
 {
     std::vector<OutputEdge> all_outputs;
 
-    int output_port = 0;
     for (const auto& graph_output : m_onnx_graph.output())
     {
         const auto node_index =
             find_source_node_idx(m_onnx_graph, m_onnx_graph.node_size(), graph_output.name());
-        all_outputs.emplace_back(node_index, output_port++);
+        const auto& node_outputs = m_onnx_graph.node(node_index).output();
+        const auto output_port_it = std::find(std::begin(node_outputs), std::end(node_outputs), graph_output.name());
+        all_outputs.emplace_back(node_index, output_port_it - std::begin(node_outputs));
     }
 
     return all_outputs;

@@ -312,7 +312,7 @@ void onnx_editor::ONNXModelEditor::cut_graph_fragment(const std::vector<InputEdg
         return;
     }
 
-    get_ports(inputs[0].m_node_idx);
+    //get_ports(inputs[0].m_node_idx);
 
     m_pimpl->infer_shapes();
 
