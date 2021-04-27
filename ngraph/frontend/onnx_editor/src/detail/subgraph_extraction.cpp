@@ -173,7 +173,8 @@ namespace
 
         auto target_input = target_node.mutable_input(edge.m_port_idx);
 
-        const std::string new_input_name = target_node.output(0) + ":" + tensor_name;
+        const std::string new_input_name = tensor_name + ":" + std::to_string(edge.m_port_idx);
+        //const std::string new_input_name = target_node.output(0) + ":" + tensor_name;
 
         // if an edge is connected to an initializer, the initializer is removed and substituted
         // with an input
@@ -338,7 +339,7 @@ void SubgraphExtractor::add_new_inputs(const std::vector<InputEdge>& new_inputs)
         // if a tensor has multiple consumers, its producer(source) should be replaced with a new
         // input - this way all consumers of this tensor will now be connected to a new graph input
         const auto tensor_name = get_input_tensor_name(m_onnx_graph, input_edge);
-        if (m_tensor_consumers[tensor_name] > 1)
+        /*if (m_tensor_consumers[tensor_name] > 1)
         {
             // remove a node or initializer from a model and insert a new input instead
             int idx = replace_source_with_new_input(m_onnx_graph, input_edge);
@@ -349,11 +350,11 @@ void SubgraphExtractor::add_new_inputs(const std::vector<InputEdge>& new_inputs)
                 // m_node_inputs stores information about existing edges in the graph,
                 // when a node is removed/replaced, information about its edges should also
                 // be removed (this way this node will be discarded from the original graph)
-                m_node_inputs.erase(std::begin(m_node_inputs) + idx);
+                m_node_inputs.at(idx).erase(std::begin(m_node_inputs.at(idx)) + input_edge.m_port_idx);
             }
         }
         else
-        {
+        {*/
             // in case an edge is connected to a single node, a new graph input should be added
             // and connected to that node; the new edge is an edge between the node and new input
             const auto new_input = append_new_graph_input(m_onnx_graph, input_edge);
@@ -363,7 +364,7 @@ void SubgraphExtractor::add_new_inputs(const std::vector<InputEdge>& new_inputs)
                 // this information will later be used during the subgraph extraction stage
                 replace_input_edge(input_edge, new_input.second);
             }
-        }
+        //}
     }
 }
 

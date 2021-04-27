@@ -491,7 +491,7 @@ NGRAPH_TEST(onnx_editor, subgraph__input_edge_from_tensor_with_multiple_consumer
 
     editor.cut_graph_fragment({{InputEdge{1, 0}, InputEdge{6, 0}}},
                               {{OutputEdge{6, 0}, OutputEdge{4, 0}}});
-
+    editor.serialize("editor.onnx");
     const auto ref_model =
         file_util::path_join(SERIALIZED_ZOO,
                              "onnx/model_editor/reference/"

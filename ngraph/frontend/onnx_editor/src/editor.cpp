@@ -221,6 +221,8 @@ onnx_editor::ONNXModelEditor::ONNXModelEditor(const std::string& model_path)
     : m_pimpl{new ONNXModelEditor::Impl{model_path}, [](Impl* impl) { delete impl; }}
     , m_model_path{model_path}
 {
+    // TODO REMOVE
+    update_mapper_if_needed();
 }
 
 void onnx_editor::ONNXModelEditor::get_ports(int node_index)

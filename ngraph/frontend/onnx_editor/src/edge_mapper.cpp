@@ -21,6 +21,7 @@ onnx_editor::EdgeMapper::EdgeMapper(const ONNX_NAMESPACE::GraphProto& graph_prot
         for (const auto& out_name : node_proto.output())
         {
             // node output name is unique
+            std::cout << topological_index << ", " << out_name << "\n";
             m_node_output_name_to_index.emplace(out_name, topological_index);
             m_node_outputs[topological_index].push_back(out_name);
         }
