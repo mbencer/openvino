@@ -14,6 +14,13 @@
 #include "ngraph/type/element_type.hpp"
 #include "onnx_editor/editor.hpp"
 #include "onnx_editor/editor_types.hpp"
+#include "ngraph/visibility.hpp"
+
+#ifdef onnx_editor_EXPORTS
+#define ONNX_EDITOR_API NGRAPH_HELPER_DLL_EXPORT
+#else
+#define ONNX_EDITOR_API NGRAPH_HELPER_DLL_IMPORT
+#endif
 
 namespace ONNX_NAMESPACE
 {
@@ -34,13 +41,13 @@ namespace ngraph
         class ONNXModelEditor final
         {
         public:
-            ONNXModelEditor() = delete;
+            ONNX_EDITOR_API ONNXModelEditor() = delete;
 
             /// \brief Creates an editor from a model file located on a storage device. The file
             ///        is parsed and loaded into the m_model_proto member variable.
             ///
             /// \param model_path Path to the file containing the model.
-            ONNXModelEditor(const std::string& model_path);
+            ONNX_EDITOR_API ONNXModelEditor(const std::string& model_path);
 
             /// \brief Modifies the in-memory representation of the model by setting
             ///        custom input types for all inputs specified in the provided map.
@@ -49,7 +56,7 @@ namespace ngraph
             ///                    used to modified the ONNX model loaded from a file. This method
             ///                    throws an exception if the model doesn't contain any of
             ///                    the inputs specified in its parameter.
-            void set_input_types(const std::map<std::string, element::Type_t>& input_types);
+            ONNX_EDITOR_API void set_input_types(const std::map<std::string, element::Type_t>& input_types);
 
             /// \brief Modifies the in-memory representation of the model by setting
             ///        custom input shapes for all inputs specified in the provided map.
@@ -58,7 +65,7 @@ namespace ngraph
             ///                     be used to modified the ONNX model loaded from a file. This
             ///                     method throws an exception if the model doesn't contain any of
             ///                     the inputs specified in its parameter.
-            void set_input_shapes(const std::map<std::string, ngraph::PartialShape>& input_shapes);
+            ONNX_EDITOR_API void set_input_shapes(const std::map<std::string, ngraph::PartialShape>& input_shapes);
 
             /// \brief Extracts a subgraph constrained by input edges and output edges. In the end
             ///        the underlying ModelProto is modified - obsolete inputs, initializers, nodes
@@ -70,7 +77,7 @@ namespace ngraph
             ///
             /// \param inputs A collection of input edges which become new inputs to the graph
             /// \param outputs A collection of output edges which become new outputs of the graph
-            void cut_graph_fragment(const std::vector<InputEdge>& inputs,
+            ONNX_EDITOR_API void cut_graph_fragment(const std::vector<InputEdge>& inputs,
                                     const std::vector<OutputEdge>& outputs);
 
             /// \brief Modifies the in-memory representation of the model by setting custom input
@@ -84,29 +91,29 @@ namespace ngraph
             /// \param input_values A collection of pairs {input_name: new_input_values} used to
             ///                     update the ONNX model. Initializers already existing are
             ///                     overwritten.
-            void set_input_values(
+            ONNX_EDITOR_API void set_input_values(
                 const std::map<std::string, std::shared_ptr<ngraph::op::Constant>>& input_values);
 
             /// \brief Returns a serialized ONNX model, possibly modified by the editor.
-            std::string model_string() const;
+            ONNX_EDITOR_API std::string model_string() const;
 
             /// \brief     Converts an edited ONNX model to an nGraph Function representation.
-            std::shared_ptr<Function> get_function() const;
+            ONNX_EDITOR_API std::shared_ptr<Function> get_function() const;
 
             /// \brief Returns a list of all inputs of the in-memory model, including initializers.
             ///        The returned value might depend on the previous operations executed on an
             ///        instance of the model editor, in particular the subgraph extraction which
             ///        can discard some inputs and initializers from the original graph.
-            std::vector<std::string> model_inputs() const;
+            ONNX_EDITOR_API std::vector<std::string> model_inputs() const;
 
             /// \brief Returns the path to the original model file
-            const std::string& model_path() const;
+            ONNX_EDITOR_API const std::string& model_path() const;
 
             /// \brief Saves the possibly modified model held by this class to a file.
             /// Serializes in binary mode.
             ///
             /// \param out_file_path A path to the file where the modified model should be dumped.
-            void serialize(const std::string& out_file_path) const;
+            ONNX_EDITOR_API void serialize(const std::string& out_file_path) const;
 
             /// \brief Returns the InputEdge based on a node (node name or output name)
             ///        and an input (input name or input index).
@@ -123,7 +130,7 @@ namespace ngraph
             ///
             /// \param input An input helper structure created based on a input name
             ///              or a input index.
-            InputEdge find_input_edge(const EditorNode& node, const EditorInput& input) const;
+            ONNX_EDITOR_API InputEdge find_input_edge(const EditorNode& node, const EditorInput& input) const;
 
             /// \brief Returns an OutputEdge based on a node (node name or output name)
             ///        and an output (output name or output index).
@@ -140,7 +147,7 @@ namespace ngraph
             ///
             /// \param output A output helper structure created based on a output name
             ///               or a output index.
-            OutputEdge find_output_edge(const EditorNode& node, const EditorOutput& output) const;
+            ONNX_EDITOR_API OutputEdge find_output_edge(const EditorNode& node, const EditorOutput& output) const;
 
             /// \brief Returns an OutputEdge based on a output name.
             ///
@@ -148,7 +155,7 @@ namespace ngraph
             ///
             /// \param output_name A node output name.
             ///
-            OutputEdge find_output_edge(const std::string& output_name) const;
+            ONNX_EDITOR_API OutputEdge find_output_edge(const std::string& output_name) const;
 
             /// \brief Returns a vector of InputEdges which consume an output of a node
             ///        determined by provided output name.
@@ -157,7 +164,7 @@ namespace ngraph
             ///
             /// \param output_name A node output name.
             ///
-            std::vector<InputEdge> find_output_consumers(const std::string& output_name) const;
+            ONNX_EDITOR_API std::vector<InputEdge> find_output_consumers(const std::string& output_name) const;
 
             /// \brief Returns a vector of InputEdges which consume an output of a node
             ///        determined by provided output name.
@@ -166,7 +173,7 @@ namespace ngraph
             ///
             /// \param output_name A node output name.
             ///
-            bool is_correct_and_unambiguous_node(const EditorNode& node) const;
+            ONNX_EDITOR_API bool is_correct_and_unambiguous_node(const EditorNode& node) const;
 
         private:
             void update_mapper_if_needed() const;

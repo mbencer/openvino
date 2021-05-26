@@ -17,7 +17,7 @@ source_group("public include" FILES ${LIBRARY_PUBLIC_HEADERS})
 
 # Create static library
 
-add_library(${TARGET_NAME} STATIC ${LIBRARY_SRC} ${LIBRARY_HEADERS} ${LIBRARY_PUBLIC_HEADERS})
+add_library(${TARGET_NAME} SHARED ${LIBRARY_SRC} ${LIBRARY_HEADERS} ${LIBRARY_PUBLIC_HEADERS})
 add_library(ngraph::onnx_editor ALIAS ${TARGET_NAME})
 
 # TODO Add handling ie_faster_build
@@ -39,3 +39,7 @@ if(NGRAPH_USE_PROTOBUF_LITE)
 endif()
 
 add_clang_format_target(${TARGET_NAME}_clang FOR_TARGETS ${TARGET_NAME})
+
+if (NGRAPH_EXPORT_TARGETS_ENABLE)
+    export(TARGETS ${TARGET_NAME} NAMESPACE ngraph:: APPEND FILE "${NGRAPH_TARGETS_FILE}")
+endif()
